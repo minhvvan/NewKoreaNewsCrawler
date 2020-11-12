@@ -24,7 +24,7 @@ class ArticleCrawler(object):
                             '오피니언': 110,'politics': 100, 'economy': 101, 'society': 102, 'living_culture': 103, 
                            'world': 104, 'IT_science': 105,'opinion': 110}
         self.selected_categories = []
-        self.date = {'start_year': 0, 'start_month': 0, 'end_year': 0, 'end_month': 0}
+        self.date = {'start_year': 0, 'start_month': 0, 'start_date':0, 'end_year': 0, 'end_month': 0, 'end_date': 0}
         self.user_operating_system = str(platform.system())
 
     #Category 설정 함수
@@ -35,23 +35,29 @@ class ArticleCrawler(object):
         self.selected_categories = args
 
     #크롤링할 기사 날짜 설정
-    def set_date_range(self, start_year, start_month, end_year, end_month):
-        args = [start_year, start_month, end_year, end_month]
+    def set_date_range(self, start_year, start_month, start_date, end_year, end_month, end_date):
+        args = [start_year, start_month, start_date, end_year, end_month, end_date]
         if start_year > end_year:
             raise InvalidYear(start_year, end_year)
         if start_month < 1 or start_month > 12:
             raise InvalidMonth(start_month)
         if end_month < 1 or end_month > 12:
             raise InvalidMonth(end_month)
+        if start_date < 1 or start_date > 32:
+            raise InvalidDate(start_date)
+        if end_date < 1 or end_date > 32:
+            raise InvalidDate(end_date)
         if start_year == end_year and start_month > end_month:
             raise OverbalanceMonth(start_month, end_month)
+        if start_year == end_year and start_date > end_date:
+            raise OverbalanceMonth(start_date, end_date)
         for key, date in zip(self.date, args):
             self.date[key] = date
         print(self.date)
 
     #url 설정 함수
     @staticmethod
-    def make_news_page_url(category_url, start_year, end_year, start_month, end_month):
+    def make_news_page_url(category_url, start_year, end_year, start_month, end_month, start_date, end_date):
         made_urls = []
         #전달받은 기간동안 수행
         for year in range(start_year, end_year + 1):
@@ -70,19 +76,26 @@ class ArticleCrawler(object):
                     year_endmonth = 12
             
             for month in range(year_startmonth, year_endmonth + 1):
-                for month_day in range(1, calendar.monthrange(year, month)[1] + 1):
-                    if len(str(month)) == 1:
-                        month = "0" + str(month)
-                    if len(str(month_day)) == 1:
-                        month_day = "0" + str(month_day)
+                if year_startmonth == year_endmonth:
+                    for month_day in range(1,  end_date + 1):
+                        if len(str(month)) == 1:
+                            month = "0" + str(month)
+                        if len(str(month_day)) == 1:
+                            month_day = "0" + str(month_day)
+                else:
+                    for month_day in range(1, calendar.monthrange(year, month)[1] + 1):
+                        if len(str(month)) == 1:
+                            month = "0" + str(month)
+                        if len(str(month_day)) == 1:
+                            month_day = "0" + str(month_day)
                         
-                    # 날짜별로 Page Url 생성
-                    url = category_url + str(year) + str(month) + str(month_day)
-                    # 전체 페이지 설정(Redirect)
-                    totalpage = ArticleParser.find_news_totalpage(url + "&page=10000")
-                    print(totalpage)
-                    for page in range(1, totalpage + 1):
-                        made_urls.append(url + "&page=" + str(page))
+                # 날짜별로 Page Url 생성
+                url = category_url + str(year) + str(month) + str(month_day)
+                # 전체 페이지 설정(Redirect)
+                totalpage = ArticleParser.find_news_totalpage(url + "&page=10000")
+                print(totalpage)
+                for page in range(1, totalpage + 1):
+                    made_urls.append(url + "&page=" + str(page))
                     
         return made_urls
 
@@ -111,7 +124,7 @@ class ArticleCrawler(object):
 
         # 설정 기간 동안 crawling
         day_urls = self.make_news_page_url(url, self.date['start_year'], self.date['end_year'], 
-                    self.date['start_month'], self.date['end_month'])
+                    self.date['start_month'], self.date['end_month'], self.date['start_date'], self.date['end_date'] )
         print(category_name + " Urls are generated")
         print("The crawler starts")
 
