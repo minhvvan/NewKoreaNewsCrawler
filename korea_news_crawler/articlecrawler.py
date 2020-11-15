@@ -26,6 +26,7 @@ class ArticleCrawler(object):
         self.selected_categories = []
         self.date = {'start_year': 0, 'start_month': 0, 'start_date':0, 'end_year': 0, 'end_month': 0, 'end_date': 0}
         self.user_operating_system = str(platform.system())
+        self.keyword = ""
 
     #Category 설정 함수
     def set_category(self, *args):
@@ -33,6 +34,10 @@ class ArticleCrawler(object):
             if self.categories.get(key) is None:
                 raise InvalidCategory(key)
         self.selected_categories = args
+
+    #keyword 설정 함수
+    def set_keyword(self, str):
+        self.keyword = str
 
     #크롤링할 기사 날짜 설정
     def set_date_range(self, start_year, start_month, start_date, end_year, end_month, end_date):
@@ -163,6 +168,11 @@ class ArticleCrawler(object):
                     tag_headline = document_content.find_all('h3', {'id': 'articleTitle'}, {'class': 'tts_head'})
                     text_headline = ''  # 뉴스 기사 제목 초기화
                     text_headline = text_headline + ArticleParser.clear_headline(str(tag_headline[0].find_all(text=True)))
+                    
+                    #keyword 검사
+                    if not self.keyword in text_headline:
+                        continue
+
                     if not text_headline:  # 공백일 경우 기사 제외 처리
                         continue
 
@@ -170,6 +180,10 @@ class ArticleCrawler(object):
                     tag_content = document_content.find_all('div', {'id': 'articleBodyContents'})
                     text_sentence = ''  # 뉴스 기사 본문 초기화
                     text_sentence = text_sentence + ArticleParser.clear_content(str(tag_content[0].find_all(text=True)))
+
+                    #keyword 검사
+                    if not self.keyword in text_sentence:
+                        continue
                     if not text_sentence:  # 공백일 경우 기사 제외 처리
                         continue
 
