@@ -14,6 +14,8 @@ import platform
 import calendar
 import requests
 import re
+from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 
 #크롤러 클래스
 class ArticleCrawler(object):
@@ -27,6 +29,9 @@ class ArticleCrawler(object):
         self.date = {'start_year': 0, 'start_month': 0, 'start_date':0, 'end_year': 0, 'end_month': 0, 'end_date': 0}
         self.user_operating_system = str(platform.system())
         self.keyword = ""
+        self.captureFlag = False
+        # self.browser = webdriver.Chrome(ChromeDriverManager().install())
+
 
     #Category 설정 함수
     def set_category(self, *args):
@@ -38,6 +43,10 @@ class ArticleCrawler(object):
     #keyword 설정 함수
     def set_keyword(self, str):
         self.keyword = str
+
+    #captureFlag 설정 함수
+    def set_captureFlag(self, flag):
+        self.captureFlag = flag
 
     #크롤링할 기사 날짜 설정
     def set_date_range(self, start_year, start_month, start_date, end_year, end_month, end_date):
@@ -163,6 +172,7 @@ class ArticleCrawler(object):
                 except:
                     continue
 
+
                 try:
                     # 기사 제목 가져옴
                     tag_headline = document_content.find_all('h3', {'id': 'articleTitle'}, {'class': 'tts_head'})
@@ -193,6 +203,26 @@ class ArticleCrawler(object):
                     text_company = text_company + str(tag_company[0].get('content'))
                     if not text_company:  # 공백일 경우 기사 제외 처리
                         continue
+
+                    # #사진 저장
+                    if(self.captureFlag):
+                        browser = webdriver.Chrome(ChromeDriverManager().install())
+                        # browser.maximize_window()
+                        browser.get(content_url)
+                        #element not found error 처리
+                        try:
+                            element = browser.find_element_by_class_name('end_photo_org')
+                            location = element.location
+                            y = location.get('y')
+                            #사진 padding 처리 (y-60)
+                            browser.execute_script("window.scrollTo(%d,%d);"%(0,y-60))
+                            size = element.size 
+                            title = text_headline+'.png'
+                            #기사 제목으로 사진제목 설정
+                            element.screenshot(title)
+                        except Exception as ex:
+                            print('Not find element')
+                    
                         
                     # CSV 작성
                     wcsv = writer.get_writer_csv()
@@ -204,6 +234,7 @@ class ArticleCrawler(object):
                     del tag_company 
                     del tag_content, tag_headline
                     del request_content, document_content
+
                 except Exception as ex:
                     del request_content, document_content
                     pass
