@@ -222,6 +222,7 @@ class ArticleCrawler(object):
                             element.screenshot(title)
                         except Exception as ex:
                             print('Not find element')
+                        browser.quit()
                     
                         
                     # CSV 작성
