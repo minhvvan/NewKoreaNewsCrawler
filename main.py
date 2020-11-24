@@ -14,4 +14,4 @@ if __name__ == "__main__":
     # covidcrawler = covidCrawler()
     # covidcrawler.getConfirmed()
     stockcrawler = stockCrawler()
-    stockcrawler.getStockChart("카카오")
+    stockcrawler.getStockChart("LG화학")
