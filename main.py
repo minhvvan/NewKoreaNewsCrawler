@@ -1,5 +1,6 @@
 from korea_news_crawler.articlecrawler import ArticleCrawler
-from korea_news_crawler.covidcrawler import covidcrawler
+from korea_news_crawler.covidcrawler import covidCrawler
+from korea_news_crawler.stock import stockCrawler
 import os
 
 if __name__ == "__main__":
@@ -10,5 +11,7 @@ if __name__ == "__main__":
     # Crawler.set_keyword("네이버")
     # Crawler.set_captureFlag(True)
     # Crawler.start()
-    covidCrawler = covidcrawler()
-    covidCrawler.getConfirmed()
+    # covidcrawler = covidCrawler()
+    # covidcrawler.getConfirmed()
+    stockcrawler = stockCrawler()
+    stockcrawler.getStockChart("카카오")
