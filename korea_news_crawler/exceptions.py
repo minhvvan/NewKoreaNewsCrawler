@@ -60,6 +60,22 @@ class InvalidDate(Exception):
     def __str__(self):
         return str(self.message)
 
+class InvalidStock(Exception):
+    def __init__(self, keyword):
+        self.keyword = keyword
+        self.message = str(keyword) + " is an invalid stock"
+
+    def __str__(self):
+        return str(self.message)
+
+
+class InvalidCovid(Exception):
+    def __init__(self):
+        self.message = "Error covidInfo"
+
+    def __str__(self):
+        return str(self.message)
+
 
 class OverbalanceMonth(Exception):
     def __init__(self, start_month, end_month):

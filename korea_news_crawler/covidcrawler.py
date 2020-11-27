@@ -5,6 +5,7 @@ import calendar
 import requests
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
+from korea_news_crawler.exceptions import *
 
 
 class covidCrawler(object):
@@ -30,6 +31,8 @@ class covidCrawler(object):
             browser.quit()
         except Exception as ex:
             print('Not find element')
+            browser.quit()
+            raise InvalidCovid(keyword)
 
 
 if __name__ == "__main__":

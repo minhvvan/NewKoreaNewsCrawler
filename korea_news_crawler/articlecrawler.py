@@ -30,7 +30,6 @@ class ArticleCrawler(object):
         self.user_operating_system = str(platform.system())
         self.keyword = ""
         self.captureFlag = False
-        # self.browser = webdriver.Chrome(ChromeDriverManager().install())
 
 
     #Category 설정 함수
@@ -96,20 +95,28 @@ class ArticleCrawler(object):
                             month = "0" + str(month)
                         if len(str(month_day)) == 1:
                             month_day = "0" + str(month_day)
+                        # 날짜별로 Page Url 생성
+                        url = category_url + str(year) + str(month) + str(month_day)
+                        # 전체 페이지 설정(Redirect)
+                        totalpage = ArticleParser.find_news_totalpage(url + "&page=10000")
+                        print(totalpage)
+                        for page in range(1, totalpage + 1):
+                            made_urls.append(url + "&page=" + str(page))
                 else:
                     for month_day in range(1, calendar.monthrange(year, month)[1] + 1):
                         if len(str(month)) == 1:
                             month = "0" + str(month)
                         if len(str(month_day)) == 1:
                             month_day = "0" + str(month_day)
-                        
-                # 날짜별로 Page Url 생성
-                url = category_url + str(year) + str(month) + str(month_day)
-                # 전체 페이지 설정(Redirect)
-                totalpage = ArticleParser.find_news_totalpage(url + "&page=10000")
-                print(totalpage)
-                for page in range(1, totalpage + 1):
-                    made_urls.append(url + "&page=" + str(page))
+                        # 날짜별로 Page Url 생성
+                        url = category_url + str(year) + str(month) + str(month_day)
+                        # 전체 페이지 설정(Redirect)
+                        totalpage = ArticleParser.find_news_totalpage(url + "&page=10000")
+                        print(totalpage)
+                        for page in range(1, totalpage + 1):
+                            made_urls.append(url + "&page=" + str(page))
+                
+                
                     
         return made_urls
 
@@ -204,10 +211,9 @@ class ArticleCrawler(object):
                     if not text_company:  # 공백일 경우 기사 제외 처리
                         continue
 
-                    # #사진 저장
+                    #사진 저장
                     if(self.captureFlag):
                         browser = webdriver.Chrome(ChromeDriverManager().install())
-                        # browser.maximize_window()
                         browser.get(content_url)
                         #element not found error 처리
                         try:
